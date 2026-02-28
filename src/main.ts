@@ -6,6 +6,12 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const adapter = app.getHttpAdapter();
+  if (adapter.getType() === 'express') {
+    const instance = adapter.getInstance();
+    instance.set('trust proxy', 1);
+  }
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
