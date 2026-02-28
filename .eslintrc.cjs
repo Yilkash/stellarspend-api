@@ -22,5 +22,5 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off',
     'no-console': 'warn',
   },
-  ignorePatterns: ['dist', 'node_modules', '*.config.js'],
+  ignorePatterns: ['dist', 'node_modules', '*.config.js', 'ormconfig.ts'],
 };
