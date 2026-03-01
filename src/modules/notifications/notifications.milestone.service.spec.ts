@@ -4,7 +4,6 @@ import { NotificationsService } from './notifications.service';
 
 describe('NotificationsMilestoneService', () => {
   let service: NotificationsMilestoneService;
-  let notificationsService: NotificationsService;
 
   const mockNotificationsService = {
     createSavingsMilestoneNotification: jest.fn(),
@@ -22,7 +21,6 @@ describe('NotificationsMilestoneService', () => {
     }).compile();
 
     service = module.get<NotificationsMilestoneService>(NotificationsMilestoneService);
-    notificationsService = module.get<NotificationsService>(NotificationsService);
   });
 
   afterEach(() => {

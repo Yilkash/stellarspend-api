@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { NotificationsService, CreateNotificationDto } from './notifications.service';
 import { Notification } from './notifications.entity';
 
 describe('NotificationsService', () => {
   let service: NotificationsService;
-  let repository: Repository<Notification>;
 
   const mockRepository = {
     create: jest.fn(),
@@ -29,7 +27,6 @@ describe('NotificationsService', () => {
     }).compile();
 
     service = module.get<NotificationsService>(NotificationsService);
-    repository = module.get<Repository<Notification>>(getRepositoryToken(Notification));
   });
 
   afterEach(() => {

@@ -59,8 +59,8 @@ describe('Property 3: No Real Database Connections in Tests', () => {
       // Assert - verify all methods are jest mock functions
       const methods = ['find', 'findOne', 'create', 'update', 'delete'];
       
-      methods.forEach(method => {
-        expect(jest.isMockFunction(mockRepo[method])).toBe(true);
+      methods.forEach((method) => {
+        expect(jest.isMockFunction((mockRepo as unknown as Record<string, unknown>)[method])).toBe(true);
       });
     });
 
@@ -70,9 +70,9 @@ describe('Property 3: No Real Database Connections in Tests', () => {
 
       // Assert - verify all methods are jest mock functions
       const methods = ['connect', 'disconnect', 'query', 'transaction'];
-      
-      methods.forEach(method => {
-        expect(jest.isMockFunction(mockDb[method])).toBe(true);
+
+      methods.forEach((method) => {
+        expect(jest.isMockFunction((mockDb as unknown as Record<string, unknown>)[method])).toBe(true);
       });
     });
   });
@@ -189,7 +189,7 @@ describe('Property 3: No Real Database Connections in Tests', () => {
       // 'typeorm', 'prisma', 'mongoose' are not present in test files
       
       // For this test suite, we verify we're only using mock imports
-      const mockImports = [
+      const _mockImports = [
         'createMockRepository',
         'createMockDatabaseConnection'
       ];

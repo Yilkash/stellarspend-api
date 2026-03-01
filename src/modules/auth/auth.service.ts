@@ -24,7 +24,7 @@ export class AuthService {
     }
 
     // Find or create wallet
-    let wallet = await this.walletRepository.findOne({ where: { publicKey } });
+    const wallet = await this.walletRepository.findOne({ where: { publicKey } });
     
     if (!wallet) {
       throw new UnauthorizedException('Wallet not found');
