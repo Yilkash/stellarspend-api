@@ -4,9 +4,10 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
 import { Transaction } from './transaction.entity';
+import { QueueModule } from '../../queue/queue.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Transaction]), NotificationsModule],
+  imports: [TypeOrmModule.forFeature([Transaction]), NotificationsModule, QueueModule],
   controllers: [TransactionsController],
   providers: [TransactionsService],
   exports: [TransactionsService],

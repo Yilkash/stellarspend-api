@@ -15,6 +15,12 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { TransactionsService } from './transactions.service';
 
+/** Optional body for the bulk-sync trigger endpoint. */
+class TriggerSyncDto {
+  userId?: string;
+  since?: string;
+}
+
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
@@ -33,8 +39,8 @@ export class TransactionsController {
   }
 
   /**
-   * Retrieves paginated list of transactions
-   * Supports filtering by userId, category, assetCode, transactionType, and date range
+   * Retrieves paginated list of transactions.
+   * Supports filtering by userId, category, assetCode, transactionType, and date range.
    */
   @Get()
   async findAll(@Query() query: QueryTransactionsDto) {
@@ -93,5 +99,17 @@ export class TransactionsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     await this.transactionsService.delete(id);
+  }
+
+  /**
+   * Enqueue a background bulk-sync job.
+   * The job is processed asynchronously by AnalyticsProcessor; this endpoint
+   * returns the BullMQ job ID immediately so the caller can track progress.
+   */
+  @Post('sync')
+  @HttpCode(202)
+  async triggerSync(@Body() body: TriggerSyncDto = {}) {
+    const { userId, since } = body;
+    return this.transactionsService.triggerBulkSync(userId, since);
   }
 }
