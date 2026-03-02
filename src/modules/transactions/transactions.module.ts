@@ -7,6 +7,10 @@ import { User } from '../users/user.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]), NotificationsModule],
+import { Transaction } from './transaction.entity';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([Transaction]), NotificationsModule],
   controllers: [TransactionsController],
   providers: [TransactionsService],
   exports: [TransactionsService],

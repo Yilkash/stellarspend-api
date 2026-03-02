@@ -7,6 +7,19 @@ import {
   ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Param,
+  Delete,
+  Patch,
+  ParseUUIDPipe,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { TransactionsService } from './transactions.service';
@@ -20,22 +33,79 @@ import { AccountStatusGuard } from '../../common/guards/account-status.guard';
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
+  /**
+   * Creates a new transaction
+   */
   @Post()
-  @ApiOperation({ summary: 'Record a new Stellar transaction' })
-  @ApiBody({ type: CreateTransactionDto })
-  @ApiResponse({ status: 201, description: 'Transaction recorded successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid request body' })
-  create(@Body() createTransactionDto: CreateTransactionDto) {
-    return this.transactionsService.create(createTransactionDto);
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() createTransactionDto: CreateTransactionDto) {
+    const transaction = await this.transactionsService.create(createTransactionDto);
+    return {
+      success: true,
+      data: transaction,
+    };
   }
 
+  /**
+   * Retrieves paginated list of transactions
+   * Supports filtering by userId, category, assetCode, transactionType, and date range
+   */
   @Get()
-  @ApiOperation({ summary: 'List transactions with pagination' })
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number (default: 1)' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page (default: 20, max: 100)' })
-  @ApiQuery({ name: 'sortOrder', required: false, enum: ['asc', 'desc'], description: 'Sort order (default: desc)' })
-  @ApiResponse({ status: 200, description: 'Paginated list of transactions' })
-  findAll(@Query() query: QueryTransactionsDto) {
-    return { message: 'Transactions list', query };
+  async findAll(@Query() query: QueryTransactionsDto) {
+    const result = await this.transactionsService.findAllPaginated(
+      query.page,
+      query.limit,
+      query.sortOrder,
+      {
+        userId: query.userId,
+        category: query.category,
+        assetCode: query.assetCode,
+        transactionType: query.transactionType,
+        startDate: query.startDate,
+        endDate: query.endDate,
+      },
+    );
+
+    return {
+      success: true,
+      data: result.data,
+      meta: result.meta,
+    };
+  }
+
+  /**
+   * Retrieves a single transaction by ID
+   */
+  @Get(':id')
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    const transaction = await this.transactionsService.findById(id);
+    return {
+      success: true,
+      data: transaction,
+    };
+  }
+
+  /**
+   * Updates a transaction
+   */
+  @Patch(':id')
+  async update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateData: Partial<CreateTransactionDto>,
+  ) {
+    const transaction = await this.transactionsService.update(id, updateData);
+    return {
+      success: true,
+      data: transaction,
+    };
+  }
+
+  /**
+   * Deletes a transaction
+   */
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.transactionsService.delete(id);
   }
 }
