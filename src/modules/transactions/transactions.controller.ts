@@ -1,17 +1,22 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBody,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { TransactionsService } from './transactions.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { AccountStatusGuard } from '../../common/guards/account-status.guard';
 
 @ApiTags('transactions')
+@ApiBearerAuth()
 @Controller('transactions')
+@UseGuards(JwtAuthGuard, AccountStatusGuard)
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
