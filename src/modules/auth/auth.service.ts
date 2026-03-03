@@ -58,8 +58,8 @@ export class AuthService {
       
       // Verify the signature
       return keypair.verify(messageBuffer, signatureBuffer);
-    } catch (error) {
-      console.error('Signature verification error:', error);
+    } catch {
+      // Signature verification failed - return false without logging
       return false;
     }
   }

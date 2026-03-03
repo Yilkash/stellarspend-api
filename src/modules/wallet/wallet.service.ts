@@ -2,10 +2,9 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Wallet } from './wallet.entity';
-import StellarSdk from '@stellar/stellar-sdk';
+import { Horizon } from '@stellar/stellar-sdk';
 
-const { Horizon } = StellarSdk;
-type HorizonServer = InstanceType<typeof Horizon.Server>;
+type HorizonServer = Horizon.Server;
 
 const HORIZON_URL = 'https://horizon.stellar.org';
 const SUPPORTED_ASSETS = ['XLM', 'USDC', 'EURC'] as const;
