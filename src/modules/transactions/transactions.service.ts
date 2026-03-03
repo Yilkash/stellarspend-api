@@ -221,6 +221,99 @@ export class TransactionsService {
     return result;
   }
 
+  /**
+   * Exports user transactions as CSV format
+   * @param userId - User ID to export transactions for
+   * @param startDate - Optional start date filter
+   * @param endDate - Optional end date filter
+   * @returns Promise resolving to CSV formatted string
+   * @throws ValidationError if userId or dates are invalid
+   */
+  async exportToCsv(
+    userId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<string> {
+    this.validateUserId(userId);
+
+    // Validate date range if provided
+    if (startDate || endDate) {
+      if (!startDate || !endDate) {
+        throw new ValidationError('Both startDate and endDate must be provided together');
+      }
+      this.validateDateRange(startDate, endDate);
+    }
+
+    // Fetch transactions for the user
+    let transactions = await this.repository.findByUserId(userId);
+
+    // Apply date range filter if provided
+    if (startDate && endDate) {
+      transactions = transactions.filter((t) => {
+        const txDate = new Date(t.date);
+        return txDate >= startDate && txDate <= endDate;
+      });
+    }
+
+    // Sort by date descending
+    transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    // Generate CSV
+    return this.generateCsv(transactions);
+  }
+
+  /**
+   * Generates CSV string from transactions
+   * @param transactions - Array of transactions to convert
+   * @returns CSV formatted string
+   */
+  private generateCsv(transactions: Transaction[]): string {
+    // CSV Header
+    const headers = [
+      'ID',
+      'Date',
+      'Amount',
+      'Category',
+      'Description',
+      'Created At',
+      'Updated At',
+    ];
+
+    // Escape CSV field to handle commas, quotes, and newlines
+    const escapeField = (field: string | number | Date | undefined): string => {
+      if (field === undefined || field === null) {
+        return '';
+      }
+      const str = String(field);
+      // Escape quotes by doubling them and wrap in quotes if contains special chars
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    // Build CSV rows
+    const rows = transactions.map((t) => [
+      escapeField(t.id),
+      escapeField(t.date?.toISOString()),
+      escapeField(t.amount),
+      escapeField(t.category),
+      escapeField(t.description),
+      escapeField(t.createdAt?.toISOString()),
+      escapeField(t.updatedAt?.toISOString()),
+    ]);
+
+    // Combine header and rows
+    const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
+
+    return csvContent;
+  }
+
+  /**
+   * Validates transaction ID format
+   * @param id - ID to validate
+   * @throws ValidationError if ID is invalid
+   */
  
   private validateId(id: string): void {
     if (!id || typeof id !== 'string') {
