@@ -3,6 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
+import { User } from '../users/user.entity';
+
+@Module({
+  imports: [TypeOrmModule.forFeature([User]), NotificationsModule],
 import { Transaction } from './transaction.entity';
 import { QueueModule } from '../../queue/queue.module';
 
