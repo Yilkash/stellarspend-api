@@ -1,4 +1,6 @@
 import { Injectable, Module, ExecutionContext } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
+
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './modules/users/users.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
@@ -12,7 +14,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Injectable()
 class AuthAndWalletThrottlerGuard extends ThrottlerGuard {
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const path: string = req?.path ?? req?.url ?? '';
     if (path.startsWith('/wallet') || path.startsWith('/auth')) {
@@ -25,6 +27,7 @@ class AuthAndWalletThrottlerGuard extends ThrottlerGuard {
 @Module({
   imports: [
     TypeOrmModule.forRoot(databaseConfig),
+    ScheduleModule.forRoot(),
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -48,4 +51,4 @@ class AuthAndWalletThrottlerGuard extends ThrottlerGuard {
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
