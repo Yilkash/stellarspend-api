@@ -1,7 +1,8 @@
-import { Injectable, Module, ExecutionContext, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { Injectable, Module, ExecutionContext } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
 import { UsersModule } from './modules/users/users.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { WalletModule } from './modules/wallet/wallet.module';
@@ -14,9 +15,9 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Injectable()
 class AuthAndWalletThrottlerGuard extends ThrottlerGuard {
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
-    const path: string = req?.path ?? req?.url ?? '';
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const req = context.switchToHttp().getRequest<import('express').Request & { path?: string }>();
+    const path: string = req.path ?? req.url ?? '';
     if (path.startsWith('/wallet') || path.startsWith('/auth')) {
       return super.canActivate(context);
     }
@@ -27,6 +28,7 @@ class AuthAndWalletThrottlerGuard extends ThrottlerGuard {
 @Module({
   imports: [
     TypeOrmModule.forRoot(databaseConfig),
+    ScheduleModule.forRoot(),
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -43,6 +45,7 @@ class AuthAndWalletThrottlerGuard extends ThrottlerGuard {
     NotificationsModule,
     AnalyticsModule,
   ],
+  controllers: [AppController],
   providers: [
     {
       provide: APP_GUARD,
@@ -50,9 +53,4 @@ class AuthAndWalletThrottlerGuard extends ThrottlerGuard {
     },
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
-  }
-}
-
+export class AppModule { }
