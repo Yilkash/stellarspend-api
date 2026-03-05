@@ -2,6 +2,7 @@ import { Injectable, Module, ExecutionContext } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
 import { UsersModule } from './modules/users/users.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { WalletModule } from './modules/wallet/wallet.module';
@@ -44,6 +45,7 @@ class AuthAndWalletThrottlerGuard extends ThrottlerGuard {
     NotificationsModule,
     AnalyticsModule,
   ],
+  controllers: [AppController],
   providers: [
     {
       provide: APP_GUARD,
