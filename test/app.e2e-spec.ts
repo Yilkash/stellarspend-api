@@ -28,4 +28,16 @@ describe('App (e2e)', () => {
         expect(new Date(res.body.timestamp).toISOString()).toBe(res.body.timestamp);
       });
   });
+
+  it('unknown route returns 404 JSON', () => {
+    return request(app.getHttpServer())
+      .get('/some/nonexistent/route')
+      .expect(404)
+      .expect((res) => {
+        expect(res.body).toEqual({
+          statusCode: 404,
+          message: 'Route not found',
+        });
+      });
+  });
 });
